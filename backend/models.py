@@ -5,7 +5,7 @@ class Books(models.Model):
     id = fields.IntField(pk=True)
     title = fields.CharField(max_length=255)
     isbn = fields.CharField(max_length=20)
-
+    author = fields.CharField(max_length=255)
     # pictures will be b64 encoded
     cover_picture = fields.TextField()
     
