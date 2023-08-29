@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from tortoise import fields, models
 from tortoise.contrib.pydantic.creator import pydantic_model_creator
 
@@ -10,5 +11,8 @@ class Books(models.Model):
     cover_picture = fields.TextField()
     
 
+class SearchResponse(BaseModel):
+    id: int
+    title: str
 
 Books_Pydantic = pydantic_model_creator(Books, name="Book")
