@@ -9,10 +9,15 @@ class Books(models.Model):
     author = fields.CharField(max_length=255)
     # pictures will be b64 encoded
     cover_picture = fields.TextField()
-    
+
+
+Books_Pydantic = pydantic_model_creator(Books, name="Book")
+
 
 class SearchResponse(BaseModel):
     id: int
     title: str
 
-Books_Pydantic = pydantic_model_creator(Books, name="Book")
+
+class BuyRequest(BaseModel):
+    username: str

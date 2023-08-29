@@ -1,10 +1,15 @@
 import json
 import redis
-from fastapi import FastAPI, Response
+import uvicorn
+
+import purchase
+
+from fastapi import FastAPI, Response, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.queryset import QuerySet
-from models import Books, Books_Pydantic, SearchResponse
+from models import Books, Books_Pydantic, SearchResponse, BuyRequest
+
 
 r = redis.asyncio.Redis(host='localhost', port=6379, db=0)
 app = FastAPI()
@@ -62,6 +67,27 @@ async def search_book_by_title(q: str, page_number: int = 0):
     return [SearchResponse(**json.loads(rsp)) for rsp in json.loads(search_result)]
 
 
+@app.post("/book/{book_id}/buy")
+async def buy_book(book_id: int, request: BuyRequest) -> None:
+    await r.xadd(purchase.PURCHASE_STREAM, {b'data': purchase.PurchaseInfo(book_id=book_id, username=request.username).model_dump_json()})
+
+
+@app.websocket("/book/purchases")
+async def purchases_websocket(websocket: WebSocket) -> None:
+    last_id_seen = '0'
+    await websocket.accept()
+    minute = 60 * 1000
+
+    while True:
+        response = await r.xread({purchase.PURCHASE_STREAM: last_id_seen}, None, 60 * minute)
+        for stream_name, messages in response:
+            for message_id, data in messages:
+                last_id_seen = message_id
+
+                purchase_info = purchase.PurchaseInfo.model_validate_json(data[b'data'])
+                await websocket.send_json(purchase_info.dict())
+
+
 register_tortoise(
     app,
     db_url="sqlite://bookdatabase.sqlite",
@@ -69,3 +95,6 @@ register_tortoise(
     generate_schemas=True,
     add_exception_handlers=True,
 )
+
+if __name__ == '__main__':
+    uvicorn.run('main:app', host="0.0.0.0", port=8000, reload=True)
