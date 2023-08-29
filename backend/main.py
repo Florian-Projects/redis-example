@@ -1,12 +1,20 @@
 import json
 import redis
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from models import Books, Books_Pydantic, SearchResponse
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/status")
 async def get_status():
