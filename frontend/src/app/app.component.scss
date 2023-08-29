@@ -1,0 +1,10 @@
+.search-bar {
+  width: calc(100% - 20px);
+  margin: 10px;
+}
+
+.table-wrapper {
+  max-height: 70vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}

@@ -11,13 +11,23 @@ import { BookService } from './book.service';
 export class AppComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
+  protected readonly displayedColumns = [
+    'id',
+    'title',
+    'isbn',
+    'author',
+    'picture',
+  ];
+
+  protected readonly dataSource = this.bookService.list();
+
   constructor(private readonly bookService: BookService) {}
 
   ngOnInit() {
-    this.bookService
-      .list()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((books) => console.log({ books }));
+    // this.bookService
+    //   .list()
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe((books) => console.log({ books }));
   }
 
   ngOnDestroy() {

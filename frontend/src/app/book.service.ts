@@ -18,19 +18,19 @@ export class BookService {
 
   constructor(private readonly http: HttpClient) {}
 
-  list() {
+  list(): Observable<Array<Book>> {
     return this.http
       .get<Array<Book>>(BookService.API + '/books/all')
       .pipe(this.alert_on_error('Failed to fetch book list'));
   }
 
-  get_single(id: number) {
+  get_single(id: number): Observable<Book> {
     return this.http
       .get<Book>(BookService.API + `/books?book_id=${id}`)
       .pipe(this.alert_on_error('Failed to fetch book'));
   }
 
-  private alert_on_error(message: string) {
+  private alert_on_error(message: string): any {
     return pipe(
       tap({ error: (e) => alert(`${message}: ${JSON.stringify(e)}`) }),
     );
