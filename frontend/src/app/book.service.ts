@@ -18,16 +18,24 @@ export class BookService {
 
   constructor(private readonly http: HttpClient) {}
 
-  list(query = ''): Observable<Array<Book>> {
+  list(
+    query = '',
+  ): Observable<{ items: Array<Book>; total_item_count: number }> {
     return this.http
-      .get<Array<Book>>(BookService.API + `/search?q=${query}`)
+      .get<Array<Book>>(BookService.API + `?query=${query}`)
       .pipe(this.alert_on_error('Failed to fetch book list'));
   }
 
   get_single(id: number): Observable<Book> {
     return this.http
-      .get<Book>(BookService.API + `?book_id=${id}`)
+      .get<Book>(BookService.API + `/${id}`)
       .pipe(this.alert_on_error('Failed to fetch book'));
+  }
+
+  purchase(username: string, bookId: number): Observable<unknown> {
+    return this.http.post(BookService.API + `/${bookId}/buy`, {
+      username,
+    });
   }
 
   private alert_on_error(message: string): any {

@@ -10,9 +10,22 @@ import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { PurchasesComponent } from './purchases/purchases.component';
+import { BooksComponent } from './books/books.component';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatButtonModule } from '@angular/material/button';
+import { NameDialogComponent } from './name-dialog/name-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    PurchasesComponent,
+    BooksComponent,
+    NameDialogComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -23,6 +36,11 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatInputModule,
     MatIconModule,
     MatTabsModule,
+    FormsModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
+    MatDialogModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

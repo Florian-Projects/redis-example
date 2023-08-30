@@ -1,0 +1,19 @@
+<mat-card *ngFor="let book of books$ | async">
+  <mat-card-header>
+    <mat-card-title-group>
+      <mat-card-title>{{ book.title }}</mat-card-title>
+      <mat-card-subtitle>{{ book.author }}</mat-card-subtitle>
+      <img
+        mat-card-sm-image
+        src="data:image/png;base64, {{ book.cover_picture }}"
+      />
+    </mat-card-title-group>
+  </mat-card-header>
+
+  <!--  TODO: show id and ISBN as badges-->
+  <mat-card-content> {{ book.id }} - {{ book.isbn }} </mat-card-content>
+
+  <mat-card-actions>
+    <button (click)="onBuy(book)" mat-button color="primary">Buy</button>
+  </mat-card-actions>
+</mat-card>

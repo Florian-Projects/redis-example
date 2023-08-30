@@ -1,15 +1,24 @@
-main {
-  padding: 10px;
+:host {
   display: block;
+  min-height: 100%;
 }
 
+$search-bar-height: 78px;
 .search-bar {
-  width: 100%;
+  margin: 10px;
+  display: flex;
+  height: $search-bar-height;
+
+  .input {
+    width: 100%;
+  }
 }
 
-.table-wrapper {
-  height: 70vh;
+app-books {
+  margin: 10px;
+
+  $tab-label-height: 48px;
+  height: calc(100dvh - $tab-label-height - $search-bar-height);
   overflow: auto;
-  overscroll-behavior: contain;
-  box-shadow: 0 0 20px -6px rgba(0, 0, 0, 0.5);
+  //overscroll-behavior: contain;
 }

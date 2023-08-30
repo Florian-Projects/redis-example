@@ -1,65 +1,21 @@
-<mat-toolbar color="primary">
-  <span>Redis Example</span>
-</mat-toolbar>
-
-<main>
-  <mat-tab-group>
-    <mat-tab label="Books">
-      <mat-form-field class="search-bar">
+<mat-tab-group>
+  <mat-tab label="Books">
+    <div class="search-bar">
+      <mat-form-field class="input">
         <mat-label>Search</mat-label>
-        <input matInput placeholder="e.g. Faust" />
+        <input
+          ngModel
+          (ngModelChange)="query$.next($event)"
+          matInput
+          placeholder="e.g. Faust"
+        />
       </mat-form-field>
+    </div>
 
-      <div class="table-wrapper">
-        <table mat-table [dataSource]="dataSource">
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef> No. </th>
-            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-          </ng-container>
+    <app-books (purchase)="onPurchase($event)" [books$]="books$"></app-books>
+  </mat-tab>
 
-          <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef> Title </th>
-            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="isbn">
-            <th mat-header-cell *matHeaderCellDef> ISBN </th>
-            <td mat-cell *matCellDef="let element"> {{element.isbn}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="author">
-            <th mat-header-cell *matHeaderCellDef> Author </th>
-            <td mat-cell *matCellDef="let element"> {{element.author}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="picture">
-            <th mat-header-cell *matHeaderCellDef> Cover </th>
-            <td mat-cell *matCellDef="let element">
-              <img src="data:image/png;base64, {{element.cover_picture}}" />
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-      </div>
-    </mat-tab>
-
-    <mat-tab label="Purchases">
-      <table mat-table [dataSource]="purchases">
-        <ng-container matColumnDef="username">
-          <th mat-header-cell *matHeaderCellDef> Username </th>
-          <td mat-cell *matCellDef="let element"> {{element.username}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="book_id">
-          <th mat-header-cell *matHeaderCellDef> Book ID </th>
-          <td mat-cell *matCellDef="let element"> {{element.book_id}} </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="purchaseColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: purchaseColumns;"></tr>
-      </table>
-    </mat-tab>
-  </mat-tab-group>
-</main>
+  <mat-tab label="Purchases">
+    <app-purchases [purchases]="purchases"></app-purchases>
+  </mat-tab>
+</mat-tab-group>

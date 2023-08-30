@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { BookService } from './book.service';
+import { BehaviorSubject, map, Subject, switchMap } from 'rxjs';
+import { Book, BookService } from './book.service';
 
 @Component({
   selector: 'app-root',
@@ -10,19 +10,16 @@ import { BookService } from './book.service';
 export class AppComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  protected readonly displayedColumns = [
-    'id',
-    'title',
-    'isbn',
-    'author',
-    'picture',
-  ];
-  protected readonly purchaseColumns = ['username', 'book_id'];
-  protected readonly dataSource = this.bookService.list();
   protected purchases: ReadonlyArray<{ username: string; book_id: string }> =
     [];
 
   protected websocket?: WebSocket;
+  protected query$ = new BehaviorSubject('');
+  protected books$ = this.query$.pipe(
+    switchMap((query) => this.bookService.list(query)),
+    map((response) => response.items),
+  );
+
   constructor(private readonly bookService: BookService) {}
 
   ngOnInit() {
@@ -36,5 +33,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  protected onPurchase({
+    username,
+    book,
+  }: {
+    username: string;
+    book: Book;
+  }): void {
+    this.bookService.purchase(username, book.id).subscribe();
   }
 }
