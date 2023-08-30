@@ -1,14 +1,15 @@
 import json
+import asyncio
+
 import redis
 import uvicorn
-
-import purchase
-
 from fastapi import FastAPI, Response, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.queryset import QuerySet
-from models import Books, Books_Pydantic, SearchResponse, BuyRequest
+
+from models import Books, Books_Pydantic, BuyRequest, ListBooksCache, ListBooksResponse
+import purchase
 
 
 r = redis.asyncio.Redis(host='localhost', port=6379, db=0)
@@ -32,7 +33,7 @@ async def get_status():
     return {"ok": "ok"}
 
 
-@app.get("/book/", response_model=Books_Pydantic)
+@app.get("/book/{book_id}", response_model=Books_Pydantic)
 async def get_specific_book(book_id: int, response: Response):
     key = f"book:{book_id}"
     details = await r.get(key)
@@ -44,48 +45,54 @@ async def get_specific_book(book_id: int, response: Response):
         else:
             response.status_code = 404
             return {}
-    else:
-        await r.expire(key, 40)
     details = json.loads(details)
     return Books_Pydantic(**details)
 
 
-@app.get("/book/search", response_model=list[SearchResponse])
-async def search_book_by_title(q: str, page_number: int = 0):
-    q = q.lower()
-    key = f"book_search:{q}:{page_number}"
-    search_result = await r.get(key)
-    if not search_result:
-        books = await Books_Pydantic.from_queryset(
-            await paginate(Books.filter(title__istartswith=q), 50, 50 * page_number))
-        search_result = json.dumps([SearchResponse(**book.dict()).model_dump_json() for book in books])
-        await r.set(key, search_result, ex=40)
+@app.get("/book", response_model=ListBooksResponse)
+async def list_books(query: str = "", page_number: int = 0):
+    cache_key = ListBooksCache.cache_key(query, page_number)
+    if cache_result := await r.get(cache_key):
+        return ListBooksCache.model_validate_json(cache_result).result
 
-    else:
-        await r.expire(key, 40)
+    # simulate heavy computations
+    await asyncio.sleep(3)
 
-    return [SearchResponse(**json.loads(rsp)) for rsp in json.loads(search_result)]
+    books_queryset = Books.filter(title__istartswith=query)
+    response = ListBooksResponse(
+        items=await Books_Pydantic.from_queryset(
+            await paginate(books_queryset, 50, 50 * page_number)
+        ),
+        total_item_count=await books_queryset.count(),
+    )
+
+    await r.set(cache_key, ListBooksCache(result=response, query=query, page=page_number).model_dump_json(), ex=40)
+
+    return response
 
 
 @app.post("/book/{book_id}/buy")
 async def buy_book(book_id: int, request: BuyRequest) -> None:
-    await r.xadd(purchase.PURCHASE_STREAM, {b'data': purchase.PurchaseInfo(book_id=book_id, username=request.username).model_dump_json()})
+    await r.xadd(purchase.Streams.purchase.value, {b'data': purchase.PurchaseInfo(book_id=book_id, username=request.username).model_dump_json()})
 
 
 @app.websocket("/book/purchases")
 async def purchases_websocket(websocket: WebSocket) -> None:
-    last_id_seen = '0'
+    last_purchase_id_seen = '0'
+    last_purchase_processed_id_seen = '0'
     await websocket.accept()
-    minute = 60 * 1000
 
     while True:
-        response = await r.xread({purchase.PURCHASE_STREAM: last_id_seen}, None, 60 * minute)
-        for stream_name, messages in response:
-            for message_id, data in messages:
-                last_id_seen = message_id
+        # uvicorn doesn't auto reload because of this line
+        for stream_name, my_messages in await r.xread({purchase.Streams.purchase: last_purchase_id_seen, purchase.Streams.purchase_processed: last_purchase_processed_id_seen}, None, 2000):
+            for message_id, data in my_messages:
+                if stream_name == bytes(purchase.Streams.purchase.value, 'utf-8'):
+                    last_purchase_id_seen = message_id
+                else:
+                    last_purchase_processed_id_seen = message_id
 
                 purchase_info = purchase.PurchaseInfo.model_validate_json(data[b'data'])
-                await websocket.send_json(purchase_info.dict())
+                await websocket.send_json(purchase.WebsocketMessage(type=stream_name, data=purchase_info).model_dump())
 
 
 register_tortoise(
