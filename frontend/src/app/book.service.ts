@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable, pipe, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, pipe, tap } from 'rxjs';
 
 export interface Book {
   id: number;
@@ -14,19 +14,19 @@ export interface Book {
   providedIn: 'root',
 })
 export class BookService {
-  private static readonly API = 'http://localhost:8000';
+  private static readonly API = 'http://localhost:8000/book';
 
   constructor(private readonly http: HttpClient) {}
 
-  list(): Observable<Array<Book>> {
+  list(query = ''): Observable<Array<Book>> {
     return this.http
-      .get<Array<Book>>(BookService.API + '/books/all')
+      .get<Array<Book>>(BookService.API + `/search?q=${query}`)
       .pipe(this.alert_on_error('Failed to fetch book list'));
   }
 
   get_single(id: number): Observable<Book> {
     return this.http
-      .get<Book>(BookService.API + `/books?book_id=${id}`)
+      .get<Book>(BookService.API + `?book_id=${id}`)
       .pipe(this.alert_on_error('Failed to fetch book'));
   }
 

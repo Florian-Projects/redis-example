@@ -7,13 +7,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
-import {
-  CdkFixedSizeVirtualScroll,
-  CdkScrollableModule,
-  CdkVirtualScrollViewport,
-} from '@angular/cdk/scrolling';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [AppComponent],
@@ -26,6 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatTableModule,
     MatInputModule,
     MatIconModule,
+    MatTabsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
