@@ -73,26 +73,24 @@ async def list_books(query: str = "", page_number: int = 0):
 
 @app.post("/book/{book_id}/buy")
 async def buy_book(book_id: int, request: BuyRequest) -> None:
-    await r.xadd(purchase.Streams.purchase.value, {b'data': purchase.PurchaseInfo(book_id=book_id, username=request.username).model_dump_json()})
+    purchase_info = purchase.PurchaseInfo(book_id=book_id, username=request.username)
+    await r.rpush("some_name", purchase_info.model_dump_json())
+    await r.publish(purchase.WEBSOCKET_CHANNEL, purchase.WebsocketMessage(type=purchase.MessageTypes.purchase, data=purchase_info).model_dump_json())
 
 
 @app.websocket("/book/purchases")
 async def purchases_websocket(websocket: WebSocket) -> None:
-    last_purchase_id_seen = '0'
-    last_purchase_processed_id_seen = '0'
     await websocket.accept()
 
-    while True:
-        # uvicorn doesn't auto reload because of this line
-        for stream_name, messages in await r.xread({purchase.Streams.purchase: last_purchase_id_seen, purchase.Streams.purchase_processed: last_purchase_processed_id_seen}, None, 2000):
-            for message_id, data in messages:
-                if stream_name == bytes(purchase.Streams.purchase.value, 'utf-8'):
-                    last_purchase_id_seen = message_id
-                else:
-                    last_purchase_processed_id_seen = message_id
+    pubsub = r.pubsub()
+    await pubsub.subscribe(purchase.WEBSOCKET_CHANNEL)
 
-                purchase_info = purchase.PurchaseInfo.model_validate_json(data[b'data'])
-                await websocket.send_json(purchase.WebsocketMessage(type=stream_name, data=purchase_info).model_dump())
+    async for message in pubsub.listen():
+        if message['type'] != 'message':
+            continue
+
+        websocket_message = purchase.WebsocketMessage.model_validate_json(message['data'])
+        await websocket.send_json(websocket_message.model_dump())
 
 
 register_tortoise(
