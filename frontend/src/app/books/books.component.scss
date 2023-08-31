@@ -3,3 +3,9 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
 }
+
+mat-spinner {
+  width: 70px !important;
+  margin: auto;
+  grid-column: 1 / -1;
+}

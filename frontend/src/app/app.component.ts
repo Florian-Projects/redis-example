@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, map, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, map, startWith, Subject, switchMap } from 'rxjs';
 import { Book, BookService } from './book.service';
 
 @Component({
@@ -16,8 +16,10 @@ export class AppComponent implements OnInit, OnDestroy {
   protected websocket?: WebSocket;
   protected query$ = new BehaviorSubject('');
   protected books$ = this.query$.pipe(
-    switchMap((query) => this.bookService.list(query)),
-    map((response) => response.items),
+    switchMap((query) =>
+      this.bookService.list(query).pipe(startWith(undefined)),
+    ),
+    map((response) => response?.items),
   );
 
   constructor(private readonly bookService: BookService) {}

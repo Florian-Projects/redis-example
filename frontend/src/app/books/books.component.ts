@@ -10,7 +10,7 @@ import { NameDialogComponent } from '../name-dialog/name-dialog.component';
   styleUrls: ['./books.component.scss'],
 })
 export class BooksComponent {
-  @Input() books$?: Observable<Array<Book>>;
+  @Input() books$?: Observable<Array<Book> | undefined>;
   @Output() purchase = new EventEmitter<{ username: string; book: Book }>();
 
   constructor(private readonly dialog: MatDialog) {}
