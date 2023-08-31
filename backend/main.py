@@ -84,8 +84,8 @@ async def purchases_websocket(websocket: WebSocket) -> None:
 
     while True:
         # uvicorn doesn't auto reload because of this line
-        for stream_name, my_messages in await r.xread({purchase.Streams.purchase: last_purchase_id_seen, purchase.Streams.purchase_processed: last_purchase_processed_id_seen}, None, 2000):
-            for message_id, data in my_messages:
+        for stream_name, messages in await r.xread({purchase.Streams.purchase: last_purchase_id_seen, purchase.Streams.purchase_processed: last_purchase_processed_id_seen}, None, 2000):
+            for message_id, data in messages:
                 if stream_name == bytes(purchase.Streams.purchase.value, 'utf-8'):
                     last_purchase_id_seen = message_id
                 else:
