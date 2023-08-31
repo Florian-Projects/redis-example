@@ -3,14 +3,18 @@ import asyncio
 
 import redis
 import uvicorn
+
+import purchase
+
+from multiprocessing import Process
+
 from fastapi import FastAPI, Response, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.queryset import QuerySet
 
 from models import Books, Books_Pydantic, BuyRequest, ListBooksCache, ListBooksResponse
-import purchase
-
+from purchase_worker import order_worker
 
 r = redis.asyncio.Redis(host="localhost", port=6379, db=0)
 app = FastAPI()
@@ -26,6 +30,12 @@ app.add_middleware(
 
 async def paginate(queryset: QuerySet, limit: int, offset: int) -> QuerySet:
     return queryset.order_by("id").offset(offset).limit(limit)
+
+
+@app.on_event("startup")
+async def add_background_workers():
+    process = Process(target=order_worker)
+    process.start()
 
 
 @app.get("/status")
@@ -80,7 +90,7 @@ async def list_books(query: str = "", page_number: int = 0):
 @app.post("/book/{book_id}/buy")
 async def buy_book(book_id: int, request: BuyRequest) -> None:
     purchase_info = purchase.PurchaseInfo(book_id=book_id, username=request.username)
-    await r.rpush("some_name", purchase_info.model_dump_json())
+    await r.rpush(purchase.WORKER_QUEUE_NAME, purchase_info.model_dump_json())
     await r.publish(
         purchase.WEBSOCKET_CHANNEL,
         purchase.WebsocketMessage(

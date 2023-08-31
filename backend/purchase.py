@@ -2,8 +2,8 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-
 WEBSOCKET_CHANNEL = "websocket_messages"
+WORKER_QUEUE_NAME = "order_queue"
 
 
 class PurchaseInfo(BaseModel):
