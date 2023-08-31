@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-WEBSOCKET_CHANNEL = 'websocket_messages'
+WEBSOCKET_CHANNEL = "websocket_messages"
 
 
 class PurchaseInfo(BaseModel):

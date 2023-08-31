@@ -12,7 +12,7 @@ from models import Books, Books_Pydantic, BuyRequest, ListBooksCache, ListBooksR
 import purchase
 
 
-r = redis.asyncio.Redis(host='localhost', port=6379, db=0)
+r = redis.asyncio.Redis(host="localhost", port=6379, db=0)
 app = FastAPI()
 
 app.add_middleware(
@@ -66,7 +66,13 @@ async def list_books(query: str = "", page_number: int = 0):
         total_item_count=await books_queryset.count(),
     )
 
-    await r.set(cache_key, ListBooksCache(result=response, query=query, page=page_number).model_dump_json(), ex=40)
+    await r.set(
+        cache_key,
+        ListBooksCache(
+            result=response, query=query, page=page_number
+        ).model_dump_json(),
+        ex=40,
+    )
 
     return response
 
@@ -75,7 +81,12 @@ async def list_books(query: str = "", page_number: int = 0):
 async def buy_book(book_id: int, request: BuyRequest) -> None:
     purchase_info = purchase.PurchaseInfo(book_id=book_id, username=request.username)
     await r.rpush("some_name", purchase_info.model_dump_json())
-    await r.publish(purchase.WEBSOCKET_CHANNEL, purchase.WebsocketMessage(type=purchase.MessageTypes.purchase, data=purchase_info).model_dump_json())
+    await r.publish(
+        purchase.WEBSOCKET_CHANNEL,
+        purchase.WebsocketMessage(
+            type=purchase.MessageTypes.purchase, data=purchase_info
+        ).model_dump_json(),
+    )
 
 
 @app.websocket("/book/purchases")
@@ -86,10 +97,12 @@ async def purchases_websocket(websocket: WebSocket) -> None:
     await pubsub.subscribe(purchase.WEBSOCKET_CHANNEL)
 
     async for message in pubsub.listen():
-        if message['type'] != 'message':
+        if message["type"] != "message":
             continue
 
-        websocket_message = purchase.WebsocketMessage.model_validate_json(message['data'])
+        websocket_message = purchase.WebsocketMessage.model_validate_json(
+            message["data"]
+        )
         await websocket.send_json(websocket_message.model_dump())
 
 
@@ -101,5 +114,5 @@ register_tortoise(
     add_exception_handlers=True,
 )
 
-if __name__ == '__main__':
-    uvicorn.run('main:app', host="0.0.0.0", port=8000, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
