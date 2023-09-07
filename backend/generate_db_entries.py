@@ -279,19 +279,18 @@ async def main() -> None:
     )
     await Tortoise.generate_schemas()
 
-    if models.Books.all().count() == 0:
+    if await models.Books.all().count() == 0:
         print("Generating books")
 
         titles = read_file_line_by_line("uniq_title.txt")
-        await insert_into_database(list(titles)[:100])
+        await insert_into_database(titles)
 
         print(f"Inserted 20,000 unique titles into the database!")
     else:
         print("Books were already generated. Exiting")
 
-    exit(0)
+    await Tortoise.close_connections()
 
 
 if __name__ == "__main__":
-    # TODO: doesn't exit https://stackoverflow.com/questions/60167683/why-does-asyncio-run-never-return-in-python-3-8
     asyncio.run(main())
