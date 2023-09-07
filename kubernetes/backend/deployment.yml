@@ -33,7 +33,7 @@ spec:
             - mountPath: /app/db
               name: data
       containers:
-        - name: backend
+        - name: redis-example-backend
           image: registry.zat.ong/redis-example-backend:latest
           imagePullPolicy: Always
           ports:

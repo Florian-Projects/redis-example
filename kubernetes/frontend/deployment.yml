@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
         - name: zatong-registry-creds
       containers:
-        - name: frontend
+        - name: redis-example-frontend
           image: registry.zat.ong/redis-example-frontend:latest
           imagePullPolicy: Always
           ports:
