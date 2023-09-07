@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, pipe, tap } from 'rxjs';
+import {environment} from "../environments/environment";
 
 export interface Book {
   id: number;
@@ -14,7 +15,7 @@ export interface Book {
   providedIn: 'root',
 })
 export class BookService {
-  private static readonly API = 'http://localhost:8000/book';
+  private static readonly API = `${environment.apiBase}/book`;
 
   constructor(private readonly http: HttpClient) {}
 

@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "docker": "docker buildx build --platform linux/amd64 --push --tag registry.zat.ong/redis-example-frontend:latest ."
   },
   "private": true,
   "dependencies": {

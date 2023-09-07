@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: redis-example
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      terminationGracePeriodSeconds: 60
+      imagePullSecrets:
+        - name: zatong-registry-creds
+      containers:
+        - name: frontend
+          image: registry.zat.ong/redis-example-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 80
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200M

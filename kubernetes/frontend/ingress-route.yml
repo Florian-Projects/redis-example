@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: frontend
+  namespace: redis-example
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`redis-example.zat.ong`)
+      kind: Rule
+      services:
+        - name: frontend
+          port: web
+  tls:
+    certResolver: letsencrypt-production
