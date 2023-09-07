@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, map, startWith, Subject, switchMap } from 'rxjs';
 import { Book, BookService } from './book.service';
+import {environment} from "../environments/environment";
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private readonly bookService: BookService) {}
 
   ngOnInit() {
-    this.websocket = new WebSocket('ws://localhost:8000/book/purchases');
+    this.websocket = new WebSocket(`${environment.wsApiBase}/book/purchases`);
     this.websocket.onmessage = (message) =>
       (this.purchases = [JSON.parse(message.data), ...this.purchases]);
   }
