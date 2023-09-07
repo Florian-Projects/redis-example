@@ -1,4 +1,9 @@
-<ng-container *ngIf="books$ | async as books; else loadingSpinner">
+<div class="books" *ngIf="books$ | async as books; else loadingSpinner">
+  <div class="no-data" *ngIf="!books.length">
+    <mat-icon fontIcon="sentiment_dissatisfied"></mat-icon>
+
+    <p>No books found</p>
+  </div>
   <mat-card *ngFor="let book of books">
     <mat-card-header>
       <mat-card-title-group>
@@ -18,8 +23,16 @@
       <button (click)="onBuy(book)" mat-button color="primary">Buy</button>
     </mat-card-actions>
   </mat-card>
-</ng-container>
+</div>
 
 <ng-template #loadingSpinner>
   <mat-spinner></mat-spinner>
 </ng-template>
+
+<mat-paginator
+  *ngIf="!hidePagination"
+  [length]="totalBookCount"
+  [pageSize]="15"
+  (page)="page.emit($event.pageIndex)"
+  aria-label="Select Page"
+></mat-paginator>

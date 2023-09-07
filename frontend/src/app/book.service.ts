@@ -21,9 +21,12 @@ export class BookService {
 
   list(
     query = '',
+    page = 0,
   ): Observable<{ items: Array<Book>; total_item_count: number }> {
     return this.http
-      .get<Array<Book>>(BookService.API + `?query=${query}`)
+      .get<Array<Book>>(BookService.API, {
+        params: { query, page_number: page },
+      })
       .pipe(this.alert_on_error('Failed to fetch book list'));
   }
 

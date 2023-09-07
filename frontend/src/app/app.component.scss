@@ -16,9 +16,4 @@ $search-bar-height: 78px;
 
 app-books {
   margin: 10px;
-
-  $tab-label-height: 48px;
-  height: calc(100dvh - $tab-label-height - $search-bar-height);
-  overflow: auto;
-  //overscroll-behavior: contain;
 }

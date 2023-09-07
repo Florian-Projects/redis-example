@@ -1,4 +1,4 @@
-<mat-tab-group>
+<mat-tab-group [(selectedIndex)]="selectedTab">
   <mat-tab label="Books">
     <div class="search-bar">
       <mat-form-field class="input">
@@ -12,7 +12,13 @@
       </mat-form-field>
     </div>
 
-    <app-books (purchase)="onPurchase($event)" [books$]="books$"></app-books>
+    <app-books
+      (purchase)="onPurchase($event)"
+      [books$]="books$"
+      [totalBookCount]="(totalBookCount$ | async) ?? 0"
+      [hidePagination]="selectedTab !== 0"
+      (page)="page$.next($event)"
+    ></app-books>
   </mat-tab>
 
   <mat-tab label="Purchases">

@@ -1,13 +1,16 @@
 import { Component, isDevMode, OnDestroy, OnInit } from '@angular/core';
 import {
   BehaviorSubject,
+  combineLatest,
   exhaustMap,
   filter,
   map,
+  shareReplay,
   startWith,
   Subject,
   switchMap,
   takeUntil,
+  tap,
   timer,
 } from 'rxjs';
 import { Book, BookService } from './book.service';
@@ -28,12 +31,19 @@ export class AppComponent implements OnInit, OnDestroy {
 
   protected websocket?: WebSocket;
   protected query$ = new BehaviorSubject('');
-  protected books$ = this.query$.pipe(
-    switchMap((query) =>
-      this.bookService.list(query).pipe(startWith(undefined)),
+  protected page$ = new BehaviorSubject(0);
+  protected bookResponse$ = combineLatest([this.query$, this.page$]).pipe(
+    switchMap(([query, page]) =>
+      this.bookService.list(query, page).pipe(startWith(undefined)),
     ),
-    map((response) => response?.items),
+    shareReplay(1),
   );
+  protected books$ = this.bookResponse$.pipe(map((r) => r?.items));
+  protected totalBookCount$ = this.bookResponse$.pipe(
+    filter((r) => !!r),
+    map((r) => r?.total_item_count),
+  );
+  protected selectedTab = 0;
 
   constructor(
     private readonly bookService: BookService,

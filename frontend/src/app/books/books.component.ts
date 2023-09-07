@@ -11,6 +11,10 @@ import { NameDialogComponent } from '../name-dialog/name-dialog.component';
 })
 export class BooksComponent {
   @Input() books$?: Observable<Array<Book> | undefined>;
+  @Input() totalBookCount = 0;
+  @Input() hidePagination = false;
+
+  @Output() page = new EventEmitter<number>();
   @Output() purchase = new EventEmitter<{ username: string; book: Book }>();
 
   constructor(private readonly dialog: MatDialog) {}

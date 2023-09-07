@@ -70,7 +70,7 @@ async def list_books(query: str = "", page_number: int = 0):
     books_queryset = Books.filter(title__istartswith=query)
     response = ListBooksResponse(
         items=await Books_Pydantic.from_queryset(
-            await paginate(books_queryset, 50, 50 * page_number)
+            await paginate(books_queryset, 15, 15 * page_number)
         ),
         total_item_count=await books_queryset.count(),
     )
