@@ -1,18 +1,19 @@
-import {Component, isDevMode, OnDestroy, OnInit} from '@angular/core';
+import { Component, isDevMode, OnDestroy, OnInit } from '@angular/core';
 import {
   BehaviorSubject,
-  exhaustMap, filter,
+  exhaustMap,
+  filter,
   map,
   startWith,
   Subject,
   switchMap,
   takeUntil,
-  timer
+  timer,
 } from 'rxjs';
 import { Book, BookService } from './book.service';
-import {environment} from "../environments/environment";
-import {SwUpdate} from "@angular/service-worker";
-import {fromPromise} from "rxjs/internal/observable/innerFrom";
+import { environment } from '../environments/environment';
+import { SwUpdate } from '@angular/service-worker';
+import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 
 @Component({
   selector: 'app-root',
@@ -34,15 +35,17 @@ export class AppComponent implements OnInit, OnDestroy {
     map((response) => response?.items),
   );
 
-  constructor(private readonly bookService: BookService, private readonly swUpdate: SwUpdate) {}
+  constructor(
+    private readonly bookService: BookService,
+    private readonly swUpdate: SwUpdate,
+  ) {}
 
   ngOnInit() {
     this.websocket = new WebSocket(`${environment.wsApiBase}/book/purchases`);
     this.websocket.onmessage = (message) =>
       (this.purchases = [JSON.parse(message.data), ...this.purchases]);
 
-    if (isDevMode())
-      return;
+    if (isDevMode()) return;
 
     timer(0, 5 * 60_000)
       .pipe(
