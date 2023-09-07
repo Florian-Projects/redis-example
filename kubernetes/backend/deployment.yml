@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: redis-example-backend
   namespace: redis-example
   labels:
     app: backend
@@ -33,7 +33,7 @@ spec:
             - mountPath: /app/db
               name: data
       containers:
-        - name: redis-example-backend
+        - name: backend
           image: registry.zat.ong/redis-example-backend:latest
           imagePullPolicy: Always
           ports:

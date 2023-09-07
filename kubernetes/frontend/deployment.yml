@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: redis-example-frontend
   namespace: redis-example
   labels:
     app: frontend
@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
         - name: zatong-registry-creds
       containers:
-        - name: redis-example-frontend
+        - name: frontend
           image: registry.zat.ong/redis-example-frontend:latest
           imagePullPolicy: Always
           ports:
