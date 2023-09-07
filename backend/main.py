@@ -118,7 +118,7 @@ async def purchases_websocket(websocket: WebSocket) -> None:
 
 register_tortoise(
     app,
-    db_url="sqlite://bookdatabase.sqlite",
+    db_url="sqlite://db/bookdatabase.sqlite",
     modules={"models": ["models"]},
     generate_schemas=True,
     add_exception_handlers=True,

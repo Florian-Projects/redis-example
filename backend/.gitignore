@@ -2,6 +2,5 @@ __pycache__
 freeze.txt
 pyrightconfig.json
 .python-version
-bookdatabase.sqlite-shm
-bookdatabase.sqlite-wal
-*.sqlite
+**/*.sqlite
+**/*.sqlite-*

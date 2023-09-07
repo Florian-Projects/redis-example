@@ -1,0 +1,5 @@
+resources:
+  - namespace.yml
+  - backend/deployment.yml
+  - backend/service.yml
+  - backend/ingress-route.yml

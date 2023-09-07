@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: redis-example
+  labels:
+    app: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      terminationGracePeriodSeconds: 60
+      imagePullSecrets:
+        - name: zatong-registry-creds
+      volumes:
+        - name: data
+          emptyDir: {}
+      initContainers:
+        - name: init-db
+          image: registry.zat.ong/redis-example-backend:latest
+          imagePullPolicy: Always
+          command:
+            - python
+            - generate_db_entries.py
+          volumeMounts:
+            - mountPath: /app/db
+              name: data
+      containers:
+        - name: backend
+          image: registry.zat.ong/redis-example-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8000
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500M
+          volumeMounts:
+            - mountPath: /app/db
+              name: data

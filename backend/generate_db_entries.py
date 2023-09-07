@@ -1,4 +1,5 @@
 import sqlite3
+import asyncio
 import random
 import string
 import uuid
@@ -6,6 +7,9 @@ from itertools import product
 from PIL import Image, ImageDraw
 import base64
 from io import BytesIO
+from tortoise import Tortoise
+
+import models
 
 
 # Generate a book title
@@ -248,32 +252,18 @@ def generate_isbn():
 
 
 # Insert the generated entries into an SQLite database
-def insert_into_database(titles):
-    conn = sqlite3.connect("bookdatabase.sqlite")
-    cursor = conn.cursor()
-
-    # Create table if it doesn't exist
-    # cursor.execute('''
-    # CREATE TABLE IF NOT EXISTS books (
-    #     id INTEGER PRIMARY KEY,
-    #     title TEXT NOT NULL,
-    #     author TEXT NOT NULL,
-    #     cover_picture TEXT NOT NULL,
-    #     isbn TEXT NOT NULL UNIQUE
-    # )
-    # ''')
-
-    for title in titles:
-        author = generate_author_name()
-        cover = generate_cover_picture()
-        isbn = generate_isbn()
-        cursor.execute(
-            "INSERT INTO books (title, author, cover_picture, isbn) VALUES (?, ?, ?, ?)",
-            (title, author, cover, isbn),
+async def insert_into_database(titles):
+    books: list[models.Books] = [
+        models.Books(
+            title=title,
+            isnb=generate_isbn(),
+            author=generate_author_name(),
+            cover_picture=generate_cover_picture(),
         )
+        for title in titles
+    ]
 
-    conn.commit()
-    conn.close()
+    await models.Books.bulk_create(books)
 
 
 def read_file_line_by_line(filename):
@@ -282,7 +272,26 @@ def read_file_line_by_line(filename):
             yield line.strip()
 
 
+async def main() -> None:
+    await Tortoise.init(
+        db_url="sqlite://db/bookdatabase.sqlite",
+        modules={"models": ["models"]},
+    )
+    await Tortoise.generate_schemas()
+
+    if models.Books.all().count() == 0:
+        print("Generating books")
+
+        titles = read_file_line_by_line("uniq_title.txt")
+        await insert_into_database(list(titles)[:100])
+
+        print(f"Inserted 20,000 unique titles into the database!")
+    else:
+        print("Books were already generated. Exiting")
+
+    exit(0)
+
+
 if __name__ == "__main__":
-    titles = read_file_line_by_line("uniq_title.txt")
-    insert_into_database(titles)
-    print(f"Inserted 20,000 unique titles into the database!")
+    # TODO: doesn't exit https://stackoverflow.com/questions/60167683/why-does-asyncio-run-never-return-in-python-3-8
+    asyncio.run(main())
