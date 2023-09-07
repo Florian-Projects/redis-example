@@ -25,8 +25,6 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private readonly destroy$ = new Subject<void>();
-
   protected purchases: ReadonlyArray<{
     username: string;
     book_id: number;
@@ -48,6 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
     map((r) => r?.total_item_count),
   );
   protected selectedTab = 0;
+
+  private readonly destroy$ = new Subject<void>();
 
   private username = localStorage.getItem('username') ?? '';
 
