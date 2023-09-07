@@ -16,6 +16,8 @@ import { Book, BookService } from './book.service';
 import { environment } from '../environments/environment';
 import { SwUpdate } from '@angular/service-worker';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { NameDialogComponent } from './name-dialog/name-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -47,15 +49,29 @@ export class AppComponent implements OnInit, OnDestroy {
   );
   protected selectedTab = 0;
 
+  private username = localStorage.getItem('username') ?? '';
+
   constructor(
     private readonly bookService: BookService,
     private readonly swUpdate: SwUpdate,
+    protected readonly dialog: MatDialog,
   ) {}
 
   ngOnInit() {
     this.websocket = new WebSocket(`${environment.wsApiBase}/book/purchases`);
     this.websocket.onmessage = (message) =>
       (this.purchases = [JSON.parse(message.data), ...this.purchases]);
+
+    if (!this.username) {
+      this.dialog
+        .open(NameDialogComponent, { disableClose: true })
+        .afterClosed()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((username) => {
+          this.username = username;
+          localStorage.setItem('username', username);
+        });
+    }
 
     if (isDevMode()) return;
 
@@ -86,13 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  protected onPurchase({
-    username,
-    book,
-  }: {
-    username: string;
-    book: Book;
-  }): void {
-    this.bookService.purchase(username, book.id).subscribe();
+  protected onPurchase(book: Book): void {
+    this.bookService.purchase(this.username, book.id).subscribe();
   }
 }

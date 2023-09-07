@@ -10,8 +10,4 @@ export class NameDialogComponent {
   constructor(
     protected readonly dialogRef: MatDialogRef<NameDialogComponent>,
   ) {}
-
-  protected onCancel(): void {
-    this.dialogRef.close();
-  }
 }
