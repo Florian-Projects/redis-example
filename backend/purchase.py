@@ -9,6 +9,7 @@ WORKER_QUEUE_NAME = "order_queue"
 class PurchaseInfo(BaseModel):
     username: str
     book_id: int
+    book_title: str
 
 
 class MessageTypes(str, Enum):

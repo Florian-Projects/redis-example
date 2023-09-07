@@ -19,7 +19,8 @@ def order_worker() -> None:
             purchase_info = purchase.PurchaseInfo.model_validate_json(response)
             sleep(5)
             message = purchase.WebsocketMessage(
-                type=purchase.MessageTypes.purchase_processed, data=purchase_info
+                type=purchase.MessageTypes.purchase_processed,
+                data=purchase_info,
             )
             redis_client.publish(purchase.WEBSOCKET_CHANNEL, message.model_dump_json())
         except Exception:

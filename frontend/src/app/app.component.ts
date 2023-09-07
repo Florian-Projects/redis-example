@@ -25,8 +25,11 @@ import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 export class AppComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  protected purchases: ReadonlyArray<{ username: string; book_id: string }> =
-    [];
+  protected purchases: ReadonlyArray<{
+    username: string;
+    book_id: number;
+    book_title: string;
+  }> = [];
 
   protected websocket?: WebSocket;
   protected query$ = new BehaviorSubject('');

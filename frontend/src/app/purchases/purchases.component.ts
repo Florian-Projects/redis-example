@@ -8,8 +8,14 @@ import { Component, Input } from '@angular/core';
 export class PurchasesComponent {
   @Input() purchases: ReadonlyArray<{
     username: string;
-    book_id: string;
+    book_id: number;
+    book_title: string;
   }> = [];
 
-  protected readonly purchaseColumns = ['type', 'username', 'book_id'];
+  protected readonly purchaseColumns = [
+    'type',
+    'username',
+    'book_id',
+    'book_title',
+  ];
 }

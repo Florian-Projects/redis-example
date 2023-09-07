@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.queryset import QuerySet
 
+import models
 import purchase
 from models import Books, Books_Pydantic, BuyRequest, ListBooksCache, ListBooksResponse
 from purchase_worker import order_worker
@@ -88,7 +89,10 @@ async def list_books(query: str = "", page_number: int = 0):
 
 @app.post("/book/{book_id}/buy")
 async def buy_book(book_id: int, request: BuyRequest) -> None:
-    purchase_info = purchase.PurchaseInfo(book_id=book_id, username=request.username)
+    book = await models.Books.get(id=book_id)
+    purchase_info = purchase.PurchaseInfo(
+        book_id=book_id, book_title=book.title, username=request.username
+    )
     await r.rpush(purchase.WORKER_QUEUE_NAME, purchase_info.model_dump_json())
     await r.publish(
         purchase.WEBSOCKET_CHANNEL,
