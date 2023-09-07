@@ -1,27 +1,26 @@
 import json
 import asyncio
+import os
+from multiprocessing import Process
 
 import redis
 import uvicorn
-
-import purchase
-
-from multiprocessing import Process
-
 from fastapi import FastAPI, Response, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.queryset import QuerySet
 
+import purchase
 from models import Books, Books_Pydantic, BuyRequest, ListBooksCache, ListBooksResponse
 from purchase_worker import order_worker
 
-r = redis.asyncio.Redis(host="localhost", port=6379, db=0)
+
+r = redis.asyncio.Redis(host=os.environ.get("REDIS_HOST", "localhost"), port=6379, db=0)
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    allow_origins=["http://localhost:4200", "https://redis-example.zat.ong"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

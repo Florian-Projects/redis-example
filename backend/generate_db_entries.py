@@ -256,7 +256,7 @@ async def insert_into_database(titles):
     books: list[models.Books] = [
         models.Books(
             title=title,
-            isnb=generate_isbn(),
+            isbn=generate_isbn(),
             author=generate_author_name(),
             cover_picture=generate_cover_picture(),
         )
@@ -282,8 +282,13 @@ async def main() -> None:
     if await models.Books.all().count() == 0:
         print("Generating books")
 
-        titles = read_file_line_by_line("uniq_title.txt")
-        await insert_into_database(titles)
+        titles = list(read_file_line_by_line("uniq_title.txt"))[:20_000]
+
+        chunk_count = 200
+        chunk_size = len(titles) // chunk_count
+        for i in range(chunk_count):
+            await insert_into_database(titles[i * chunk_size : (i + 1) * chunk_size])
+            print(f"Inserted {chunk_size} books")
 
         print(f"Inserted 20,000 unique titles into the database!")
     else:

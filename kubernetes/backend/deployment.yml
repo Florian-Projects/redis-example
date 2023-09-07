@@ -14,12 +14,14 @@ spec:
       labels:
         app: backend
     spec:
+      nodeName: kube-node01
       terminationGracePeriodSeconds: 60
       imagePullSecrets:
         - name: zatong-registry-creds
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: redis-example-data
       initContainers:
         - name: init-db
           image: registry.zat.ong/redis-example-backend:latest
@@ -44,3 +46,6 @@ spec:
           volumeMounts:
             - mountPath: /app/db
               name: data
+          env:
+            - name: REDIS_HOST
+              value: redis-master.redis-example.svc.cluster.local
