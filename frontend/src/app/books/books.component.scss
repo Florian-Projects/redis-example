@@ -46,3 +46,14 @@ mat-paginator {
     text-align: center;
   }
 }
+
+.badge {
+  display: inline-block;
+
+  color: white;
+  background: #355df2;
+
+  margin: 5px;
+  padding: 5px;
+  border-radius: 10px;
+}

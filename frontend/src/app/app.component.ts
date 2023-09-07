@@ -10,7 +10,6 @@ import {
   Subject,
   switchMap,
   takeUntil,
-  tap,
   timer,
 } from 'rxjs';
 import { Book, BookService } from './book.service';

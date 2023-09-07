@@ -16,8 +16,17 @@
       </mat-card-title-group>
     </mat-card-header>
 
-    <!--  TODO: show id and ISBN as badges-->
-    <mat-card-content> {{ book.id }} - {{ book.isbn }} </mat-card-content>
+    <mat-card-content>
+      <div class="badge">
+        <b>ID: </b>
+        <span>{{ book.id }}</span>
+      </div>
+
+      <div class="badge">
+        <b>ISBN: </b>
+        <span>{{ book.isbn }}</span>
+      </div>
+    </mat-card-content>
 
     <mat-card-actions>
       <button (click)="onBuy(book)" mat-button color="primary">Buy</button>
